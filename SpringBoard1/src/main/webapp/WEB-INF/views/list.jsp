@@ -33,11 +33,10 @@
     <div class="container">
     <div class="row-fluid">
     <%
-    /*
     	Date date = new Date();
         SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
                         
-                        
+                        /*
                         String criteria = request.getParameter( "criteria" );
                         String find = request.getParameter("find");
                         String boardId = request.getParameter("boardId");
@@ -111,10 +110,10 @@
 	        <td width=500>
 	        	<c:choose> 
 					<c:when test="${boardItem.date eq date}">
-						<p align=center><a id='noBlue' href='view?key=${boardItem.id}'>${boardItem.title}  (${boardItem.commentcnt})  [New]</a></p>
+						<p align=center><a id='noBlue' href='view.jsp?key=${boardItem.id}'>${boardItem.title}  (${boardItem.commentcnt})  [New]</a></p>
 					</c:when>  
 					<c:otherwise>
-						<p align=center><a id='noBlue' href='view?key=${boardItem.id}'>${boardItem.title} (${boardItem.commentcnt})  </a></p>
+						<p align=center><a id='noBlue' href='view.jsp?key=${boardItem.id}'>${boardItem.title} (${boardItem.commentcnt})  </a></p>
 					</c:otherwise> 
 				</c:choose>
 	        </td>
