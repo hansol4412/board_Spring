@@ -15,4 +15,5 @@ public interface BoardItemRepository extends JpaRepository<BoardItem, Integer>{
 	List<BoardItem> findByBoardAndTitleContainingOrderByIdDesc(Board board, String title);
 	
 	List<BoardItem> findByBoardAndContentContainingOrderByIdDesc(Board board, String content);
+	
 }
