@@ -27,6 +27,11 @@ public class Reply {
 	@JoinColumn//(name="boarditem_id")
 	@JsonBackReference
 	private BoardItem boardItem;
+	
+	
+	public Integer getId() {
+		return id;
+	}
 
 	public String getDate() {
 		return date;

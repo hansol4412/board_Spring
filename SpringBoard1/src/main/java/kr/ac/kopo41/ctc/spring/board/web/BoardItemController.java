@@ -14,16 +14,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import kr.ac.kopo41.ctc.spring.board.domain.Board;
 import kr.ac.kopo41.ctc.spring.board.domain.BoardItem;
+import kr.ac.kopo41.ctc.spring.board.domain.Reply;
 import kr.ac.kopo41.ctc.spring.board.repository.BoardItemRepository;
 import kr.ac.kopo41.ctc.spring.board.repository.BoardRepository;
+import kr.ac.kopo41.ctc.spring.board.repository.ReplyRepository;
 
 @Controller
-public class BoardItemController {
+public class BoardItemController {         
 	@Autowired
 	private BoardItemRepository boardItemRepository;
 	
 	@Autowired
 	private BoardRepository boardRepository;
+	
+	@Autowired
+	private ReplyRepository replyRepository;
 	
 	Date date = new Date();
     SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
@@ -36,13 +41,17 @@ public class BoardItemController {
         
 		Board board = boardRepository.findById(Integer.parseInt(boardId)).get();
 		List<BoardItem> boardItems = null;
-		
+	
 		if(criteria==null && find==null) {
 			boardItems = boardItemRepository.findByBoardOrderByIdDesc(board);
 		} else if (criteria.equals("title")){
 			boardItems = boardItemRepository.findByBoardAndTitleContainingOrderByIdDesc(board,find);
 		} else if (criteria.equals("content")){
 			boardItems = boardItemRepository.findByBoardAndContentContainingOrderByIdDesc(board,find);
+		}
+		
+		for(BoardItem boardItem : boardItems) {
+			boardItem.setCommentcnt((int)(replyRepository.countByBoardItemId(boardItem.getId())));
 		}
 		
 		model.addAttribute("boardList", boardItems);
@@ -55,9 +64,15 @@ public class BoardItemController {
 	public String view(HttpServletRequest request, Model model){
 		int bno = Integer.parseInt(request.getParameter( "key" ));
 		BoardItem boardItem = boardItemRepository.findById(bno).get();
-		boardItem.setViewcnt(boardItem.getViewcnt()+1);
+		List<Reply> replies = replyRepository.findByBoardItemOrderByIdDesc(boardItem);
+		
+
+		boardItem.setViewcnt(boardItem.getViewcnt()+1); //조회수 증가
 		boardItemRepository.save(boardItem);
+		
+		
 		model.addAttribute("board", boardItem);
+		model.addAttribute("replyList", replies);
 		return "view";
 	}
 	
