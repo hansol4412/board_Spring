@@ -32,44 +32,6 @@
 <body>
     <div class="container">
     <div class="row-fluid">
-    <%
-    /*
-    	Date date = new Date();
-        SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
-                        
-                        
-                        String criteria = request.getParameter( "criteria" );
-                        String find = request.getParameter("find");
-                        String boardId = request.getParameter("boardId");
-                        
-                        String pageno = request.getParameter("pageno");
-                        
-                        BoardItemService crud = new BoardItemServiceImpl();
-                    	ReplyService crudR = new ReplyServiceImpl();
-
-                        Page pageParameter = crud.pagination(pageno, criteria, find, boardId);
-                    	
-                    	List<BoardItem> boardList;
-                    	if(criteria == null || find == null){
-                    		boardList = crud.getListWithPaging(pageno, boardId);
-                    	} else{
-                    		boardList = crud.findListWithPaging(pageno, criteria, find, boardId);
-                    	}
-                    	
-                    	for(BoardItem board: boardList) {
-                    		board.setCommentcnt(crudR.getTotalCount(board.getId()));
-                    	}
-                    	*/
-                    	
-                        //request.setAttribute("boardList", boardList);
-                        //request.setAttribute("date", sd.format(date));
-                        //request.setAttribute("criteria", criteria);
-                        //request.setAttribute("find", find);
-                        //request.setAttribute("pageParameter", pageParameter);
-                        //request.setAttribute("Itemtotalcount", crud.getTotalCount(boardId));
-                        //request.setAttribute("boardId", boardId);
-    %>
-    
 		<h1 class="display-2 text-center">Board</h1>
          <ul class="nav nav-tabs">
 	    	<li class="nav-item active">
@@ -147,6 +109,42 @@
                     <input type=button  class="btn btn-success" value=" 신규" OnClick="window.location='insert?boardId=${boardId}'">
        			</div>
     </div>
+    <c:set var="pageno" value="${pageParameter.pageno}" />
+    			<c:choose> 
+					<c:when test="${empty criteria || empty find}">
+						<a href='list?pageno=1&boardId=${boardId}' class='btn btn-outline-primary'>&lt;&lt;</a>
+    					<a href='list?pageno=${pageParameter.prev_pageno}&boardId=${boardId}' class='btn btn-outline-primary'>&lt;</a>
+				        <c:forEach var="i" begin="${pageParameter.page_sno}" end="${pageParameter.page_eno}">
+							<c:choose>
+								<c:when test="${pageno eq i}">
+									<a class='btn btn-primary' href='list?pageno=${i}&boardId=${boardId}'>${i}</a>
+								</c:when>
+								<c:otherwise>
+									<a class='btn btn-outline-primary' href='list?pageno=${i}&boardId=${boardId}'>${i}</a>
+								</c:otherwise>
+							</c:choose>
+				        </c:forEach>
+				        <a href='list?pageno=${pageParameter.next_pageno}&boardId=${boardId}' class='btn btn-outline-primary' >&gt;</a>
+    					<a href='list?pageno=${Itemtotalcount}&boardId=${boardId}' class='btn btn-outline-primary'>&gt;&gt;</a>
+					</c:when> 
+					<c:otherwise>
+						<a href='list?pageno=1&criteria=${criteria}&find=${find}&boardId=${boardId}' class='btn btn-outline-primary'>&lt;&lt;</a>
+    					<a href='list?pageno=${pageParameter.prev_pageno}&criteria=${criteria}&find=${find}&boardId=${boardId}' class='btn btn-outline-primary'>&lt;</a>
+				        <c:forEach var="i" begin="${pageParameter.page_sno}" end="${pageParameter.page_eno}">
+							<c:choose>
+								<c:when test="${pageno eq i}">
+									<a class='btn btn-primary' href='list?pageno=${i}&criteria=${criteria}&find=${find}&boardId=${boardId}'>${i}</a>
+								</c:when>
+								<c:otherwise>
+									<a class='btn btn-outline-primary' href='list?pageno=${i}&criteria=${criteria}&find=${find}&boardId=${boardId}'>${i}</a>
+								</c:otherwise>
+							</c:choose>
+				        </c:forEach>
+				        <a href='list?pageno=${pageParameter.next_pageno}&criteria=${criteria}&find=${find}&boardId=${boardId}' class='btn btn-outline-primary' >&gt;</a>
+    					<a href='list?pageno=${Itemtotalcount}&criteria=${criteria}&find=${find}&boardId=${boardId}' class='btn btn-outline-primary'>&gt;&gt;</a>
+					</c:otherwise> 
+				</c:choose>
+
     <div>
     <div>
 

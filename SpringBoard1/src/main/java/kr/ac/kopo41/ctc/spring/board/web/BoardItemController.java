@@ -8,16 +8,19 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import kr.ac.kopo41.ctc.spring.board.domain.Board;
 import kr.ac.kopo41.ctc.spring.board.domain.BoardItem;
+import kr.ac.kopo41.ctc.spring.board.domain.Page;
 import kr.ac.kopo41.ctc.spring.board.domain.Reply;
 import kr.ac.kopo41.ctc.spring.board.repository.BoardItemRepository;
 import kr.ac.kopo41.ctc.spring.board.repository.BoardRepository;
 import kr.ac.kopo41.ctc.spring.board.repository.ReplyRepository;
+import kr.ac.kopo41.ctc.spring.board.service.BoardItemService;
 
 @Controller
 public class BoardItemController {         
@@ -30,6 +33,9 @@ public class BoardItemController {
 	@Autowired
 	private ReplyRepository replyRepository;
 	
+	@Autowired
+	private BoardItemService boardItemService;
+	
 	Date date = new Date();
     SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
     
@@ -38,16 +44,23 @@ public class BoardItemController {
 		String boardId = request.getParameter("boardId");
 		String criteria = request.getParameter( "criteria" );
         String find = request.getParameter("find");
+        String pageno = request.getParameter("pageno");
+        
+        Page pageParameter = boardItemService.pagination(pageno, criteria, find, boardId);
         
 		Board board = boardRepository.findById(Integer.parseInt(boardId)).get();
+		
 		List<BoardItem> boardItems = null;
-	
+		int itemtotalcount = 0;
 		if(criteria==null && find==null) {
-			boardItems = boardItemRepository.findByBoardOrderByIdDesc(board);
+			boardItems = boardItemRepository.findByBoardOrderByIdDesc(board, PageRequest.of(pageParameter.getPageno()-1,10)).getContent();
+			itemtotalcount = (int)boardItemRepository.countByBoardId(Integer.parseInt(boardId));
 		} else if (criteria.equals("title")){
-			boardItems = boardItemRepository.findByBoardAndTitleContainingOrderByIdDesc(board,find);
+			boardItems = boardItemRepository.findByBoardAndTitleContainingOrderByIdDesc(board,find, PageRequest.of(pageParameter.getPageno()-1,10)).getContent();
+			itemtotalcount = (int)boardItemRepository.countByBoardIdAndTitleContaining(Integer.parseInt(boardId), find);
 		} else if (criteria.equals("content")){
-			boardItems = boardItemRepository.findByBoardAndContentContainingOrderByIdDesc(board,find);
+			boardItems = boardItemRepository.findByBoardAndContentContainingOrderByIdDesc(board,find, PageRequest.of(pageParameter.getPageno()-1,10)).getContent();
+			itemtotalcount = (int)boardItemRepository.countByBoardIdAndContentContaining(Integer.parseInt(boardId), find);
 		}
 		
 		for(BoardItem boardItem : boardItems) {
@@ -57,6 +70,10 @@ public class BoardItemController {
 		model.addAttribute("boardList", boardItems);
 		model.addAttribute("boardId", boardId);
 		model.addAttribute("date", sd.format(date));
+		model.addAttribute("pageParameter", pageParameter);
+		model.addAttribute("Itemtotalcount", itemtotalcount);
+		model.addAttribute("criteria", criteria);
+		model.addAttribute("find", find);
 		return "list";
 	}
 	
@@ -123,9 +140,5 @@ public class BoardItemController {
 		
 		return "redirect:/list?boardId="+boardId;
 	}
-	
-	
-	
-	
 
 }
