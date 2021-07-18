@@ -35,6 +35,7 @@ public class BoardItemController {
 	
 	@Autowired
 	private BoardItemService boardItemService;
+
 	
 	Date date = new Date();
     SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
@@ -104,7 +105,7 @@ public class BoardItemController {
 	@RequestMapping(value = "/update") 
 	public String update(HttpServletRequest request, Model model){
 		int bno = Integer.parseInt(request.getParameter( "key" ));
-		BoardItem boardItems = boardItemRepository.findById(bno).get();
+		BoardItem boardItems = boardItemService.findById(bno);
 		model.addAttribute("board", boardItems);
 		return "update";
 	}
@@ -119,22 +120,11 @@ public class BoardItemController {
         String boardId = request.getParameter( "boardId" ); 
         
 		if(mode.equals("INSERT")){
-			Board board = boardRepository.findById(Integer.parseInt(boardId)).get();
-			BoardItem b = new BoardItem();
-			b.setTitle(title);
-			b.setContent(content);
-			b.setBoard(board);
-			b.setCommentcnt(0);
-			b.setViewcnt(0);
-			b.setDate(date);
-			boardItemRepository.save(b);
+			boardItemService.insert(boardId, title, content, date);
         } else if(mode.equals("UPDATE")){
-        	BoardItem boardItem = boardItemRepository.findById(Integer.parseInt(id)).get();
-        	boardItem.setTitle(title);
-        	boardItem.setContent(content);
-        	boardItemRepository.save(boardItem);	
+        	boardItemService.update(id, title, content);	
         } else if(mode.equals("DELETE")){
-        	boardItemRepository.deleteById((Integer.parseInt(id)));
+        	boardItemService.delete(id);
         }
 		model.addAttribute("boardId", boardId);
 		

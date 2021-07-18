@@ -20,7 +20,6 @@ public interface BoardItemRepository extends JpaRepository<BoardItem, Integer>{
 	
 	Page<BoardItem> findByBoardAndContentContainingOrderByIdDesc(Board board, String content, Pageable pageable);
 	
-	
 	long countByBoardId(int boardid); 
 	long countByBoardIdAndTitleContaining(int boardid, String title); 
 	long countByBoardIdAndContentContaining(int boardid, String content); 

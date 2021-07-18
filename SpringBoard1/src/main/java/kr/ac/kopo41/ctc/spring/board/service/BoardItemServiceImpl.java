@@ -3,15 +3,52 @@ package kr.ac.kopo41.ctc.spring.board.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import kr.ac.kopo41.ctc.spring.board.domain.Board;
+import kr.ac.kopo41.ctc.spring.board.domain.BoardItem;
 import kr.ac.kopo41.ctc.spring.board.domain.Page;
 import kr.ac.kopo41.ctc.spring.board.repository.BoardItemRepository;
+import kr.ac.kopo41.ctc.spring.board.repository.BoardRepository;
 
 @Service
 public class BoardItemServiceImpl implements BoardItemService{
 	@Autowired
 	private BoardItemRepository boardItemRepository;
 	
+	@Autowired
+	private BoardRepository boardRepository;
 	
+	@Override
+	public BoardItem findById(int bno) {
+		BoardItem boardItems = boardItemRepository.findById(bno).get();
+		return boardItems;
+	}
+
+	@Override
+	public void insert(String boardId, String title, String content, String date) {
+		Board board = boardRepository.findById(Integer.parseInt(boardId)).get();
+		BoardItem b = new BoardItem();
+		b.setTitle(title);
+		b.setContent(content);
+		b.setBoard(board);
+		b.setCommentcnt(0);
+		b.setViewcnt(0);
+		b.setDate(date);
+		boardItemRepository.save(b);
+	}
+
+	@Override
+	public void update(String id, String title, String content) {
+		BoardItem boardItem = boardItemRepository.findById(Integer.parseInt(id)).get();
+    	boardItem.setTitle(title);
+    	boardItem.setContent(content);
+    	boardItemRepository.save(boardItem);	
+	}
+
+	@Override
+	public void delete(String id) {
+		boardItemRepository.deleteById((Integer.parseInt(id)));
+	}
+
 	@Override
 	public Page pagination(String pagenoP, String criteria, String findWord, String boardId) {
 		int pageno = toInt(pagenoP);
