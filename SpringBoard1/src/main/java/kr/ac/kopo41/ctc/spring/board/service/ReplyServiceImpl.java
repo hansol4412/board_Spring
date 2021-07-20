@@ -2,6 +2,7 @@ package kr.ac.kopo41.ctc.spring.board.service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,18 @@ public class ReplyServiceImpl implements ReplyService{
 	Date date = new Date();
     SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
     
+	@Override
+	public List<Reply> findByBoardItem(BoardItem boardItem) {
+		List<Reply> replies = replyRepository.findByBoardItemOrderByIdDesc(boardItem);
+		return replies;
+	}
+	
+	@Override
+	public int countByBoardItemId(BoardItem boardItem) {
+		int replyCount = (int)(replyRepository.countByBoardItemId(boardItem.getId()));
+		return replyCount;
+	}
+
 	@Override
 	public void reply_insert(String boardItemId, String replyContent) {
 		BoardItem boardItem = boardItemRepository.findById(Integer.parseInt(boardItemId)).get();

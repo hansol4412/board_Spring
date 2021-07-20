@@ -1,11 +1,15 @@
 package kr.ac.kopo41.ctc.spring.board.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import kr.ac.kopo41.ctc.spring.board.domain.Board;
 import kr.ac.kopo41.ctc.spring.board.domain.BoardItem;
 import kr.ac.kopo41.ctc.spring.board.domain.Page;
+import kr.ac.kopo41.ctc.spring.board.domain.Reply;
 import kr.ac.kopo41.ctc.spring.board.repository.BoardItemRepository;
 import kr.ac.kopo41.ctc.spring.board.repository.BoardRepository;
 
@@ -21,6 +25,42 @@ public class BoardItemServiceImpl implements BoardItemService{
 	public BoardItem findById(int bno) {
 		BoardItem boardItems = boardItemRepository.findById(bno).get();
 		return boardItems;
+	}
+	
+	@Override
+	public List<BoardItem> findByBoard(Board board, Page pageParameter) {
+		List<BoardItem> boardItems = boardItemRepository.findByBoardOrderByIdDesc(board, PageRequest.of(pageParameter.getPageno()-1,10)).getContent();
+		return boardItems;
+	}
+
+	@Override
+	public List<BoardItem> findByBoardAndTitle(Board board, String find, Page pageParameter) {
+		List<BoardItem> boardItems =  boardItemRepository.findByBoardAndTitleContainingOrderByIdDesc(board,find, PageRequest.of(pageParameter.getPageno()-1,10)).getContent();
+		return boardItems;
+	}
+
+	@Override
+	public List<BoardItem> findByBoardAndContent(Board board, String find, Page pageParameter) {
+		List<BoardItem> boardItems = boardItemRepository.findByBoardAndContentContainingOrderByIdDesc(board,find, PageRequest.of(pageParameter.getPageno()-1,10)).getContent();
+		return boardItems;
+	}
+	
+	@Override
+	public int countByBoardId(String boardId) {
+		int itemtotalcount = (int)boardItemRepository.countByBoardId(Integer.parseInt(boardId));
+		return itemtotalcount;
+	}
+
+	@Override
+	public int countByBoardIdAndTitle(String boardId, String find) {
+		int itemtotalcount = (int)boardItemRepository.countByBoardIdAndTitleContaining(Integer.parseInt(boardId), find);
+		return itemtotalcount;
+	}
+
+	@Override
+	public int countByBoardIdAndContent(String boardId, String find) {
+		int itemtotalcount = (int)boardItemRepository.countByBoardIdAndContentContaining(Integer.parseInt(boardId), find);
+		return itemtotalcount;
 	}
 
 	@Override
@@ -47,6 +87,12 @@ public class BoardItemServiceImpl implements BoardItemService{
 	@Override
 	public void delete(String id) {
 		boardItemRepository.deleteById((Integer.parseInt(id)));
+	}
+	
+	@Override
+	public void updateViewcnt(BoardItem boardItem) {
+		boardItem.setViewcnt(boardItem.getViewcnt()+1); //조회수 증가
+		boardItemRepository.save(boardItem);
 	}
 
 	@Override

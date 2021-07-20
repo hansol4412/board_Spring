@@ -21,20 +21,19 @@ import kr.ac.kopo41.ctc.spring.board.repository.BoardItemRepository;
 import kr.ac.kopo41.ctc.spring.board.repository.BoardRepository;
 import kr.ac.kopo41.ctc.spring.board.repository.ReplyRepository;
 import kr.ac.kopo41.ctc.spring.board.service.BoardItemService;
+import kr.ac.kopo41.ctc.spring.board.service.BoardService;
+import kr.ac.kopo41.ctc.spring.board.service.ReplyService;
 
 @Controller
 public class BoardItemController {         
 	@Autowired
-	private BoardItemRepository boardItemRepository;
-	
-	@Autowired
-	private BoardRepository boardRepository;
-	
-	@Autowired
-	private ReplyRepository replyRepository;
+	private BoardService boardService;
 	
 	@Autowired
 	private BoardItemService boardItemService;
+	
+	@Autowired
+	private ReplyService replyService;
 
 	
 	Date date = new Date();
@@ -49,23 +48,23 @@ public class BoardItemController {
         
         Page pageParameter = boardItemService.pagination(pageno, criteria, find, boardId);
         
-		Board board = boardRepository.findById(Integer.parseInt(boardId)).get();
+		Board board = boardService.findById(Integer.parseInt(boardId));
 		
 		List<BoardItem> boardItems = null;
 		int itemtotalcount = 0;
 		if(criteria==null && find==null) {
-			boardItems = boardItemRepository.findByBoardOrderByIdDesc(board, PageRequest.of(pageParameter.getPageno()-1,10)).getContent();
-			itemtotalcount = (int)boardItemRepository.countByBoardId(Integer.parseInt(boardId));
+			boardItems = boardItemService.findByBoard(board, pageParameter);
+			itemtotalcount = boardItemService.countByBoardId(boardId);
 		} else if (criteria.equals("title")){
-			boardItems = boardItemRepository.findByBoardAndTitleContainingOrderByIdDesc(board,find, PageRequest.of(pageParameter.getPageno()-1,10)).getContent();
-			itemtotalcount = (int)boardItemRepository.countByBoardIdAndTitleContaining(Integer.parseInt(boardId), find);
+			boardItems = boardItemService.findByBoardAndTitle(board, find, pageParameter);
+			itemtotalcount = boardItemService.countByBoardIdAndTitle(boardId, find);
 		} else if (criteria.equals("content")){
-			boardItems = boardItemRepository.findByBoardAndContentContainingOrderByIdDesc(board,find, PageRequest.of(pageParameter.getPageno()-1,10)).getContent();
-			itemtotalcount = (int)boardItemRepository.countByBoardIdAndContentContaining(Integer.parseInt(boardId), find);
+			boardItems = boardItemService.findByBoardAndContent(board, find, pageParameter);
+			itemtotalcount = boardItemService.countByBoardIdAndContent(boardId, find);
 		}
 		
 		for(BoardItem boardItem : boardItems) {
-			boardItem.setCommentcnt((int)(replyRepository.countByBoardItemId(boardItem.getId())));
+			boardItem.setCommentcnt(replyService.countByBoardItemId(boardItem));
 		}
 		
 		model.addAttribute("boardList", boardItems);
@@ -81,14 +80,9 @@ public class BoardItemController {
 	@RequestMapping(value = "/view") 
 	public String view(HttpServletRequest request, Model model){
 		int bno = Integer.parseInt(request.getParameter( "key" ));
-		BoardItem boardItem = boardItemRepository.findById(bno).get();
-		List<Reply> replies = replyRepository.findByBoardItemOrderByIdDesc(boardItem);
-		
-
-		boardItem.setViewcnt(boardItem.getViewcnt()+1); //조회수 증가
-		boardItemRepository.save(boardItem);
-		
-		
+		BoardItem boardItem = boardItemService.findById(bno);
+		List<Reply> replies = replyService.findByBoardItem(boardItem);
+		boardItemService.updateViewcnt(boardItem); //조회수 증가
 		model.addAttribute("board", boardItem);
 		model.addAttribute("replyList", replies);
 		return "view";
